@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.streamlit/secrets.toml
+
+# Member CSV exports, votes and preferences stay local to each machine
+data/uploads/*
+!data/uploads/.gitkeep
+data/clubs/*
+!data/clubs/.gitkeep
+data/club.json
+data/active_club.txt
+
+# Open Library lookups are shared across clubs on this machine, not committed
+data/cache/*
+!data/cache/.gitkeep
+
+# Leftover from the original single-club layout
+preferences/*.json
