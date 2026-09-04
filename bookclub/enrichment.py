@@ -619,6 +619,7 @@ def _subject_work(doc: dict) -> dict:
 def prioritise_for_enrichment(
     books: Sequence[CanonicalBook],
     client: OpenLibraryClient | None = None,
+    **_kwargs,
 ) -> list[CanonicalBook]:
     """Order genre lookups so a limited API budget buys the most useful genres.
 

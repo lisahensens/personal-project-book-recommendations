@@ -175,6 +175,24 @@ def get_client() -> OpenLibraryClient:
     return st.session_state["client"]
 
 
+def books_to_enrich(books, client):
+    """Order books for genre lookup, even if Streamlit has a stale enrichment module.
+
+    Streamlit often re-runs app.py while still holding an older
+    prioritise_for_enrichment that does not accept client=. Passing that
+    keyword then crashes the page, so fall back to filtering here.
+    """
+    try:
+        return prioritise_for_enrichment(books, client=client)
+    except TypeError:
+        untried = [
+            book
+            for book in books
+            if not book.all_genres and client.cached_genres(book) is None
+        ]
+        return prioritise_for_enrichment(untried)
+
+
 def get_club():
     paths = get_paths()
     if paths is None:
@@ -289,15 +307,7 @@ def render_enrichment(library) -> None:
             st.warning(last_run["summary"])
 
     client = get_client()
-    # Filter here rather than only inside prioritise_for_enrichment: Streamlit
-    # often reloads app.py while still holding an older enrichment module, and
-    # a new keyword argument would crash this page.
-    untried = [
-        book
-        for book in library.books
-        if not book.all_genres and client.cached_genres(book) is None
-    ]
-    to_fetch = prioritise_for_enrichment(untried)
+    to_fetch = books_to_enrich(library.books, client)
     without_genres = sum(1 for book in library.books if not book.all_genres)
     have_genres = len(library.books) - without_genres
     already_tried = without_genres - len(to_fetch)
